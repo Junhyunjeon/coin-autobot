@@ -1,0 +1,35 @@
+schema_version: 1
+
+scenarios:
+  - name: "trend_only_low_spread"
+    filters:
+      regime: "trend"  # Only trade in trending markets
+      max_spread_bps: 8
+    actions:
+      allow: ["BUY", "SELL"]
+      disallow: ["EXIT"]  # Let positions run in trends
+      pass_when:
+        prob_between: [0.40, 0.60]  # Pass on uncertain signals
+
+  - name: "range_market"
+    filters:
+      regime: "range"  # Range-bound market
+    actions:
+      allow: ["EXIT", "HOLD"]  # Focus on closing positions
+      pass_when:
+        prob_between: [0.35, 0.65]  # Wider pass band in ranges
+
+  - name: "high_volatility"
+    filters:
+      regime: "volatile"
+    actions:
+      allow: ["BUY", "SELL", "EXIT"]
+      pass_when:
+        prob_between: [0.45, 0.55]  # Tighter pass band, require higher confidence
+
+  - name: "quiet_market"
+    filters:
+      regime: "quiet"
+    actions:
+      allow: ["HOLD"]  # Avoid trading in quiet markets
+      disallow: ["BUY", "SELL"]

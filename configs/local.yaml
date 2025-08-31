@@ -1,0 +1,74 @@
+data:
+  ohlcv_path: "data/sample_ohlcv.csv"
+  orderbook_path: null  # "data/sample_orderbook.csv" if available
+  tz: "UTC"
+
+events:
+  cusum_threshold: 0.005  # Cumulative sum threshold for event detection
+
+labeling:
+  triple_barrier:
+    pt_mult: 2.0  # Profit-take multiplier
+    sl_mult: 1.0  # Stop-loss multiplier
+    max_holding_minutes: 240  # Maximum holding period
+
+features:
+  returns_lags: [1, 5, 15, 60]
+  vol_lookback: 60
+  momentum_lookback: [20, 60]
+
+model:
+  gbdt:
+    lib: "lightgbm"  # or "xgboost"
+    params:
+      n_estimators: 300
+      learning_rate: 0.05
+      max_depth: -1
+      num_leaves: 63
+      subsample: 0.8
+      colsample_bytree: 0.8
+      reg_alpha: 0.1
+      reg_lambda: 0.1
+    thresholds:
+      buy: 0.60  # p_up >= 0.60 → BUY
+      sell: 0.60  # p_down >= 0.60 → SELL
+      pass_band: [0.40, 0.60]  # Pass if probability in this range
+
+metalabel:
+  enable: true
+  params:
+    n_estimators: 200
+    learning_rate: 0.05
+    num_leaves: 31
+
+sizing:
+  target_annual_vol: 0.20  # Target 20% annual volatility
+  min_pos: 0.0
+  max_pos: 1.0
+
+costs:
+  fee_bps: 5  # 5 basis points trading fee
+  slippage:
+    mode: "powerlaw"  # "orderbook" or "powerlaw"
+    powerlaw_k: 1.5
+    powerlaw_c: 0.0005
+
+policy:
+  scenarios_path: "scenarios.yaml"
+
+guard:
+  cooldown_minutes_after_loss: 30
+  max_trades_per_day: 20
+  max_spread_bps: 10
+
+backtest:
+  train_start: "2023-01-01"
+  train_end: "2023-12-31"
+  test_start: "2024-01-01"
+  test_end: "2024-06-30"
+  cv_scheme: "walkforward"
+  seed: 42
+
+output:
+  report_dir: "reports"
+  plot_dir: "plots"

@@ -1,0 +1,174 @@
+# Bitcoin Signal Pipeline Development History
+
+## Project Overview
+Developed a comprehensive Bitcoin signal generation and backtesting framework implementing sophisticated quantitative trading strategies.
+
+## Development Timeline
+
+### 1. Project Structure & Initialization
+- Created feat/signal-pipeline branch
+- Set up modular Python package structure:
+  ```
+  bitcoin/
+  ├── data/           # Data processing
+  ├── models/         # ML models  
+  ├── sizing/         # Position sizing
+  ├── policy/         # Trading policies
+  ├── backtest/       # Backtesting engine
+  └── cli/           # Command interface
+  ```
+- Created configuration files (configs/local.yaml, scenarios.yaml)
+- Set up requirements.txt with all dependencies
+
+### 2. Data Module Implementation
+- **DataLoader**: CSV/Parquet loading with timezone handling
+- **CUSUMEventDetector**: Statistical event detection using cumulative sum algorithm
+- **TripleBarrierLabeler**: Supervised learning labels with profit-take/stop-loss/timeout exits
+- **FeatureEngineer**: 17 technical indicators including:
+  - Returns (multiple lags)
+  - Volatility (historical, Parkinson, Garman-Klass, ATR)
+  - Momentum (RSI, MACD, Stochastic, ADX, ROC)
+  - Volume (OBV, VPT, MFI)
+  - Technical (Bollinger Bands, Support/Resistance)
+  - Microstructure (spread proxies, Amihud illiquidity)
+
+### 3. Models Module Implementation
+- **GBDTModel**: LightGBM/XGBoost wrapper with:
+  - Multi-class classification (buy/sell/hold)
+  - Configurable probability thresholds
+  - Pass-band logic for uncertain signals
+  - Feature importance tracking
+- **MetaLabelModel**: Secondary filtering model to improve signal quality
+  - Binary classification for signal acceptance/rejection
+  - Enhanced features including signal context
+  - Class imbalance handling
+
+### 4. Sizing & Policy Modules
+- **VolatilityTargeting**: Dynamic position sizing based on:
+  - Target annual volatility (default 20%)
+  - Real-time volatility estimates
+  - Position limits and drawdown scaling
+  - Kelly criterion support
+- **ScenarioPolicy**: Market regime-aware trading rules
+  - Trend/range/volatile/quiet regime detection
+  - Conditional signal filtering based on market conditions
+- **GuardRules**: Risk management system
+  - Post-loss cooldown periods
+  - Daily trade limits
+  - Spread filtering
+  - Drawdown limits
+
+### 5. Backtesting Engine
+- **BacktestEngine**: Event-driven backtester with:
+  - Realistic order execution
+  - Position tracking
+  - P&L calculation
+  - Trade recording
+- **CostModel**: Sophisticated cost modeling
+  - Orderbook-based slippage (L2 data)
+  - Power-law market impact model
+  - Configurable trading fees
+- **MetricsCalculator**: Comprehensive performance analysis
+  - Return metrics (total, CAGR, Sharpe, Sortino, Calmar)
+  - Risk metrics (max drawdown, volatility)
+  - Trading stats (win rate, profit factor, expectancy)
+- **ChartGenerator**: Professional visualizations
+  - Signal overlay charts
+  - Equity curve with drawdown
+  - Performance metrics dashboard
+
+### 6. CLI & Configuration
+- **CLI Interface**: Complete command-line tool
+  - Train/backtest/predict modes
+  - Verbose logging
+  - Configuration file support
+- **Configuration System**: YAML-based parameter management
+  - Data paths and preprocessing
+  - Model hyperparameters
+  - Risk management settings
+  - Output directories
+
+### 7. Sample Data Generation
+- **Realistic Bitcoin Data**: Generated 786k+ records with:
+  - Intraday volatility patterns (US/EU/Asian sessions)
+  - Weekend effects
+  - Volatility clustering (GARCH-like)
+  - Mean reversion and trend components
+  - Volume correlation with price moves
+- **Orderbook Data**: L2 snapshots with realistic spreads
+
+### 8. Testing & Validation
+- **Unit Tests**: Core functionality validation
+- **Integration Test**: End-to-end pipeline verification
+- **Quick Test Results** (10k samples):
+  - Processing time: ~30 seconds
+  - Events detected: 296
+  - Signals generated: 2,378
+  - Features: 17 technical indicators
+  - Model accuracy: 60%
+  - Total return: -0.07% (small test sample)
+
+### 9. Documentation
+- **Comprehensive README**: 
+  - Installation instructions
+  - Usage examples
+  - Architecture overview
+  - Troubleshooting guide
+- **Code Documentation**: Detailed docstrings throughout
+- **Configuration Examples**: Sample YAML files with explanations
+
+## Technical Achievements
+
+### Core Pipeline Architecture
+Event Detection (CUSUM) → Triple Barrier Labeling → Feature Engineering → GBDT Modeling → Meta-Labeling → Volatility Targeting → Scenario Policies → Guard Rules → Backtesting → Performance Analysis
+
+### Key Innovations
+1. **Pass-Band Logic**: Avoids uncertain signals to improve Sharpe ratio
+2. **Meta-Labeling**: Secondary model filters primary signals
+3. **Regime-Aware Trading**: Different strategies for different market conditions
+4. **Realistic Cost Modeling**: Both orderbook and power-law slippage models
+5. **Comprehensive Risk Management**: Multiple layers of protection
+
+### Performance Features
+- Handles 786k+ minute-level records
+- Generates detailed performance reports
+- Creates publication-quality charts
+- Supports walk-forward analysis
+- Configurable via YAML files
+
+## Files Created (32 total)
+- 13 Python modules (3,000+ lines of code)
+- 2 configuration files
+- 2 sample datasets (798k records)
+- 1 CLI script
+- 3 test files
+- 1 comprehensive README
+- Multiple utility scripts
+
+## Dependencies Installed
+pandas, numpy, scikit-learn, lightgbm, xgboost, matplotlib, seaborn, pyyaml, click, tqdm, statsmodels, pytest
+
+## Commit History
+```
+c32163a feat: Implement complete Bitcoin signal pipeline
+5455a82 🚀 새로운 프로젝트 시작: Coin Autobot  
+b1f707f Initial commit: Add .gitignore
+```
+
+## Ready for Use
+The complete pipeline is immediately executable:
+- `python test_quick.py` - Quick validation
+- `python -m bitcoin.cli.run --config configs/local.yaml` - Full pipeline
+- `pytest tests/` - Run test suite
+
+## Future Enhancements
+- Add more sophisticated regime detection
+- Implement portfolio optimization
+- Add real-time data connectors
+- Include alternative data sources
+- Expand to multiple cryptocurrencies
+
+---
+Generated: 2025-01-31
+Developer: Claude Code Assistant
+Status: ✅ Complete and Functional
